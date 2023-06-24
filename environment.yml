@@ -1,0 +1,23 @@
+name: baseline_model
+
+channels:
+  - conda-forge
+  - anaconda
+  - plotly
+  - defaults
+
+dependencies:
+  - python=3.11.2
+  - pandas=1.5.3
+  - numpy=1.23.5
+  - xlsxwriter=3.0.9
+  - scikit-learn=1.2.2
+  - matplotlib=3.7.1
+  - seaborn=0.11.2
+  - imbalanced-learn=0.10.1
+  - jupyter=1.0.0
+  - plotly=5.14.1
+  - jupyter-dash=
+  - pip:
+    - rdkit==2022.9.5
+    - lazypredict==0.2.12
