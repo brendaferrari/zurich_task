@@ -9,6 +9,7 @@ from sklearn.impute import IterativeImputer
 from sklearn.impute import SimpleImputer
 from sklearn import linear_model
 from scipy.stats.mstats import winsorize
+from sklearn.decomposition import PCA
 
 class Preprocess:
 
@@ -227,3 +228,13 @@ class Preprocess:
                     df_imp = pd.DataFrame(df_imp_tf, columns = self.data.columns)
                     
                     return df_imp
+            
+    def do_DimensionalityReduction(self, features):
+
+        pca = PCA(n_components=features)
+        # X is the matrix transposed (n samples on the rows, m features on the columns)
+        pca.fit(self.data)
+
+        data_x_new = pd.DataFrame(pca.transform(self.data))
+        
+        return data_x_new

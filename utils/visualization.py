@@ -9,6 +9,8 @@ import seaborn as sns
 import matplotlib.cm as cm
 import pandas as pd
 import numpy as np
+from plotly import subplots
+import plotly.graph_objects as go
 
 #Adapted from https://gist.github.com/iwatobipen/f8b0e8ea2c872e7ccf34ab472454ce6c#file-chemicalspace_lapjv-ipynb
 
@@ -172,3 +174,67 @@ class Visualization:
         # Remove x axis name for the boxplot
         ax_box.set(xlabel='')
         plt.show()
+
+        
+
+    def create_ComparePlot(self, results):
+        results_dict = {'Original':results.T.loc['Original'],
+                        'Outlier treatment':results.T.loc['Outlier treatment'],
+                        'Feature redution':results.T.loc['Feature redution'],
+                        'Outlier and feature redution':results.T.loc['Outlier and feature redution']}
+
+        fig = subplots.make_subplots(rows=1, cols=2)
+
+        for k, rows in zip(results_dict.keys(), results_dict.values()):
+            for i, column in enumerate(rows):
+                if i == 0:
+                    pass
+                else:
+                    fig.add_trace(
+                        go.Scatter(
+                            x = rows.index,
+                            y = rows[column],
+                            name = column
+                        ), 1,1
+                    )
+
+        for rows in results_dict.values():
+            for i, column in enumerate(rows):
+                if i == 0:
+                    fig.add_trace(
+                        go.Scatter(
+                            x = rows.index,
+                            y = rows[column],
+                            name = column
+                        ), 1,2
+                    )
+
+        fig.update_layout(
+            updatemenus=[go.layout.Updatemenu(
+                active=0,
+                buttons=list(
+                    [dict(label = 'Original',
+                        method = 'update',
+                        args = [{'visible': [True, True, False, False, False, False, False, False, True, False, False, False]},
+                                {'title': 'Original',
+                                'showlegend':True}]),
+                    dict(label = 'Outlier treatment',
+                        method = 'update',
+                        args = [{'visible': [False, False, True, True, False, False, False, False, False, True, False, False]}, # the index of True aligns with the indices of plot traces
+                                {'title': 'Outlier treatment',
+                                'showlegend':True}]),
+                    dict(label = 'Feature redution',
+                        method = 'update',
+                        args = [{'visible': [False, False, False, False, True, True, False, False, False, False, True, False]}, # the index of True aligns with the indices of plot traces
+                                {'title': 'Feature redution',
+                                'showlegend':True}]),
+                    dict(label = 'Outlier and feature redution',
+                        method = 'update',
+                        args = [{'visible': [False, False, False, False, False, False, True, True, False, False, False, True]}, # the index of True aligns with the indices of plot traces
+                                {'title': 'Outlier and feature redution',
+                                'showlegend':True}]),
+                    ])
+                )
+            ])
+
+        fig.show()

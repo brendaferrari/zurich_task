@@ -13,6 +13,17 @@ from sklearn.metrics import *
 import numpy as np 
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LinearRegression
+from sklearn import linear_model
+from sklearn.linear_model import SGDRegressor
+from sklearn.dummy import DummyRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
+from statistics import mean 
+from sklearn.metrics import mean_squared_error
 
 class Compare:
 
@@ -205,3 +216,38 @@ class Compare:
                             #print('not calculated')
 
         return best_estimator, best_score
+    
+    def compare_models(self, models, datasets):
+        
+        header = []
+        scores = []
+        Jtrain = []
+        Jtest = []
+
+        for name, data in datasets.items():
+            train_error = []
+            test_error = []
+            for model in models:
+                train_error = []
+                test_error = []
+                kf = KFold(n_splits=5, random_state=42, shuffle=True)
+                for train_index, test_index in kf.split(data[0], data[1]):
+                    train_x, test_x = data[0].iloc[train_index], data[0].iloc[test_index]
+                    train_y, test_y = data[1].iloc[train_index], data[1].iloc[test_index]
+
+                    model.fit(train_x, train_y)
+                    train_pred_y = model.predict(train_x)
+                    test_pred_y = model.predict(test_x)
+                    train_error.append(mean_squared_error(train_y, train_pred_y))
+                    test_error.append(mean_squared_error(test_y, test_pred_y))
+
+                score = cross_val_score(model, data[0], data[1], cv=5, scoring='r2')
+                scores.append(score.mean())
+                Jtrain.append(mean(train_error))
+                Jtest.append(mean(test_error))
+                header.append((name,str(model)))
+                print("R2: %0.2f (+/- %0.2f)\n Jtrain: %0.2f \n Jtest: %0.2f" % (score.mean(), score.std() * 2, mean(train_error), mean(test_error)))
+        
+        results = pd.DataFrame([scores, Jtrain, Jtest], columns=pd.MultiIndex.from_tuples(header), index=['R2', 'Jtrain', 'Jtest'])
+
+        return results
