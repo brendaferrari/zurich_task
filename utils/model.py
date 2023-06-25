@@ -10,7 +10,6 @@ class Model:
         r2=[]
         mae=[]
         mse=[]
-        #kf = KFold(n_splits=5, random_state=42, shuffle=True)
         for train_index, test_index in cross_val.split(data_x, data_y):
             train_x, test_x = data_x.iloc[train_index], data_x.iloc[test_index]
             train_y, test_y = data_y.iloc[train_index], data_y.iloc[test_index]

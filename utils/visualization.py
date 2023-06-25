@@ -180,8 +180,9 @@ class Visualization:
     def create_ComparePlot(self, results):
         results_dict = {'Original':results.T.loc['Original'],
                         'Outlier treatment':results.T.loc['Outlier treatment'],
-                        'Feature redution':results.T.loc['Feature redution'],
-                        'Outlier and feature redution':results.T.loc['Outlier and feature redution']}
+                        'Feature reduction':results.T.loc['Feature reduction'],
+                        'Outlier and feature reduction':results.T.loc['Outlier and feature reduction'],
+                        'Outlier and log transform':results.T.loc['Outlier and log transform']}
 
         fig = subplots.make_subplots(rows=1, cols=2)
 
@@ -215,23 +216,28 @@ class Visualization:
                 buttons=list(
                     [dict(label = 'Original',
                         method = 'update',
-                        args = [{'visible': [True, True, False, False, False, False, False, False, True, False, False, False]},
+                        args = [{'visible': [True, True, False, False, False, False, False, False, False, False, True, False, False, False, False]},
                                 {'title': 'Original',
                                 'showlegend':True}]),
                     dict(label = 'Outlier treatment',
                         method = 'update',
-                        args = [{'visible': [False, False, True, True, False, False, False, False, False, True, False, False]}, # the index of True aligns with the indices of plot traces
+                        args = [{'visible': [False, False, True, True, False, False, False, False, False, False, False, True, False, False, False]}, # the index of True aligns with the indices of plot traces
                                 {'title': 'Outlier treatment',
                                 'showlegend':True}]),
-                    dict(label = 'Feature redution',
+                    dict(label = 'Feature reduction',
                         method = 'update',
-                        args = [{'visible': [False, False, False, False, True, True, False, False, False, False, True, False]}, # the index of True aligns with the indices of plot traces
-                                {'title': 'Feature redution',
+                        args = [{'visible': [False, False, False, False, False, False, True, True, False, False, False, False, True, False, False]}, # the index of True aligns with the indices of plot traces
+                                {'title': 'Feature reduction',
                                 'showlegend':True}]),
-                    dict(label = 'Outlier and feature redution',
+                    dict(label = 'Outlier and feature reduction',
                         method = 'update',
-                        args = [{'visible': [False, False, False, False, False, False, True, True, False, False, False, True]}, # the index of True aligns with the indices of plot traces
-                                {'title': 'Outlier and feature redution',
+                        args = [{'visible': [False, False, False, False, False, False, False, False, True, True, False, False, False, True, False]}, # the index of True aligns with the indices of plot traces
+                                {'title': 'Outlier and feature reduction',
+                                'showlegend':True}]),
+                    dict(label = 'Outlier and log transform',
+                        method = 'update',
+                        args = [{'visible': [False, False, False, False, False, False, False, False, True, True, False, False, False, False, True]}, # the index of True aligns with the indices of plot traces
+                                {'title': 'Outlier and log transform',
                                 'showlegend':True}]),
                     ])
                 )
