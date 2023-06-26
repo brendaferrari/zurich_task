@@ -172,66 +172,66 @@ class Preprocess:
         return self.data
     
     def outlier_treatment(self, method='winsorize'):
-            """
-            Remove outliers using the inter quartile range technique
-            https://towardsdatascience.com/detecting-and-treating-outliers-in-python-part-3-dcb54abaf7b0#:~:text=robust)%20Mahalanobis%20distance.-,Imputation,based%20on%20the%20remaining%20data.
-            https://ndgigliotti.medium.com/trimming-vs-winsorizing-outliers-e5cae0bf22cb
-            """
-            Q1 = self.data['target'].quantile(0.25)
-            Q3 = self.data['target'].quantile(0.75)
-            IQR = Q3 - Q1    #IQR is interquartile range. 
+        """
+        Remove outliers using the inter quartile range technique
+        https://towardsdatascience.com/detecting-and-treating-outliers-in-python-part-3-dcb54abaf7b0#:~:text=robust)%20Mahalanobis%20distance.-,Imputation,based%20on%20the%20remaining%20data.
+        https://ndgigliotti.medium.com/trimming-vs-winsorizing-outliers-e5cae0bf22cb
+        """
+        Q1 = self.data['target'].quantile(0.25)
+        Q3 = self.data['target'].quantile(0.75)
+        IQR = Q3 - Q1    #IQR is interquartile range. 
 
-            inner_fence_ub = Q1 - 1.5 * IQR
-            inner_fence_lb = Q3 + 1.5 *IQR
+        inner_fence_ub = Q1 - 1.5 * IQR
+        inner_fence_lb = Q3 + 1.5 *IQR
 
-            outer_fence_ub = Q1 - 3 * IQR
-            outer_fence_lb = Q3 + 3 *IQR
+        outer_fence_ub = Q1 - 3 * IQR
+        outer_fence_lb = Q3 + 3 *IQR
 
-            if method == 'winsorize':
-                    print(outer_fence_lb)
-                    print(outer_fence_ub)
-                    print('86% quantile:   ', self.data['target'].quantile(0.86))       #10.75
-                    print('89.5% quantile:   ', self.data['target'].quantile(0.895))       #10.75
-                    print('90% quantile:   ', self.data['target'].quantile(0.90))       #10.75
-                    print('92.5% quantile: ', self.data['target'].quantile(0.925))      #13.54
-                    print('95% quantile:   ', self.data['target'].quantile(0.95))       #15.79
-                    print('97.5% quantile: ', self.data['target'].quantile(0.975))      #23.93
-                    print('99% quantile:   ', self.data['target'].quantile(0.99))       #41.37
-                    print('99.9% quantile: ', self.data['target'].quantile(0.999))      #81.18
+        if method == 'winsorize':
+            print(outer_fence_lb)
+            print(outer_fence_ub)
+            print('86% quantile:   ', self.data['target'].quantile(0.86))       #10.75
+            print('89.5% quantile:   ', self.data['target'].quantile(0.895))       #10.75
+            print('90% quantile:   ', self.data['target'].quantile(0.90))       #10.75
+            print('92.5% quantile: ', self.data['target'].quantile(0.925))      #13.54
+            print('95% quantile:   ', self.data['target'].quantile(0.95))       #15.79
+            print('97.5% quantile: ', self.data['target'].quantile(0.975))      #23.93
+            print('99% quantile:   ', self.data['target'].quantile(0.99))       #41.37
+            print('99.9% quantile: ', self.data['target'].quantile(0.999))      #81.18
 
-                    data_w = self.data.copy(deep=True)
+            data_w = self.data.copy(deep=True)
 
-                    #Winsorize on right-tail
-                    data_w['target_wins_89.5%'] = winsorize(self.data['target'], limits=(0, 0.105))
-                    data_w['target_wins_86%'] = winsorize(self.data['target'], limits=(0, 0.14))
+            #Winsorize on right-tail
+            data_w['target_wins_89.5%'] = winsorize(self.data['target'], limits=(0, 0.105))
+            data_w['target_wins_86%'] = winsorize(self.data['target'], limits=(0, 0.14))
             
-                    return data_w
+            return data_w
 
-            if method == 'imputation':   
-                    outliers_prob = []
-                    outliers_poss = []
-                    for index, x in enumerate(self.data['target']):
-                            if x <= outer_fence_ub or x >= outer_fence_lb:
-                                    outliers_prob.append(index)
-                    for index, x in enumerate(self.data['target']):
-                            if x <= inner_fence_ub or x >= inner_fence_lb:
-                                    outliers_poss.append(index)
+        if method == 'imputation':   
+            outliers_prob = []
+            outliers_poss = []
+            for index, x in enumerate(self.data['target']):
+                    if x <= outer_fence_ub or x >= outer_fence_lb:
+                            outliers_prob.append(index)
+            for index, x in enumerate(self.data['target']):
+                    if x <= inner_fence_ub or x >= inner_fence_lb:
+                            outliers_poss.append(index)
 
-                    for i in outliers_prob:
-                            self.data.at[i, 'target'] = None
+            for i in outliers_prob:
+                    self.data.at[i, 'target'] = None
 
-                    #Define imputer
-                    #imputer = IterativeImputer(estimator=LinearRegression(),
-                                            # n_nearest_features=None,
-                                            # imputation_order='ascending')
-                                            # #, sample_posterior=True)
-                    imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
-                    #Fit imputer and transform                          
-                    imputer.fit(self.data)
-                    df_imp_tf = imputer.transform(self.data)
-                    df_imp = pd.DataFrame(df_imp_tf, columns = self.data.columns)
+            #Define imputer
+            #imputer = IterativeImputer(estimator=LinearRegression(),
+                                    # n_nearest_features=None,
+                                    # imputation_order='ascending')
+                                    # #, sample_posterior=True)
+            imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
+            #Fit imputer and transform                          
+            imputer.fit(self.data)
+            df_imp_tf = imputer.transform(self.data)
+            df_imp = pd.DataFrame(df_imp_tf, columns = self.data.columns)
                     
-                    return df_imp
+            return df_imp
             
     def do_DimensionalityReduction(self, features):
 
