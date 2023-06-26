@@ -70,6 +70,8 @@ class Preprocess:
         collinearity, in statistics, correlation between predictor variables (or independent variables), such that they express a 
         linear relationship in a regression model. 
         When predictor variables in the same regression model are correlated, they cannot independently predict the value of the dependent variable.
+        Multicollinearity makes it hard to interpret your coefficients, and it reduces the power of your model to identify independent variables that are statistically significant
+        strong correlation exists between them, making it difficult or impossible to estimate their individual regression coefficients reliably
         """
         shape_before = self.data.shape
         print(f'Before removing High Colinearity values: {shape_before}\n')
@@ -188,6 +190,7 @@ class Preprocess:
             if method == 'winsorize':
                     print(outer_fence_lb)
                     print(outer_fence_ub)
+                    print('86% quantile:   ', self.data['target'].quantile(0.86))       #10.75
                     print('89.5% quantile:   ', self.data['target'].quantile(0.895))       #10.75
                     print('90% quantile:   ', self.data['target'].quantile(0.90))       #10.75
                     print('92.5% quantile: ', self.data['target'].quantile(0.925))      #13.54
@@ -200,6 +203,7 @@ class Preprocess:
 
                     #Winsorize on right-tail
                     data_w['target_wins_89.5%'] = winsorize(self.data['target'], limits=(0, 0.105))
+                    data_w['target_wins_86%'] = winsorize(self.data['target'], limits=(0, 0.14))
             
                     return data_w
 

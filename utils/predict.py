@@ -3,6 +3,7 @@ from sklearn.metrics import r2_score
 class Predict:
 
     def model_prediction(self, data_x, data_y, models, cross_val, predict_data):     
+        
         r2 = 0
         pred_y_actual = []
         test_y_pred = []
@@ -22,3 +23,10 @@ class Predict:
                 pred_y_actual = pred_y_
                 test_y_actual = test_y
         return pred_y_actual, test_y_pred, test_y_actual
+    
+    def write_results(self, array, path):
+
+        with open(path, mode='w') as out:
+            out.write(f'prediction\n')
+            for result in list(array):
+                out.write(f'{result}\n')

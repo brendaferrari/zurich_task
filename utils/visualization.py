@@ -1,13 +1,9 @@
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import DataStructs
-from rdkit.Chem import Draw
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
-import seaborn as sns
-import matplotlib.cm as cm
-import pandas as pd
 import numpy as np
 from plotly import subplots
 import plotly.graph_objects as go
@@ -89,7 +85,7 @@ class Visualization:
                     colorscale='viridis',
                     color=dataset.target,
                     #size=dataset.prediction_reg,
-                    colorbar={"title": "Molecular<br>Weight"},
+                    colorbar={"title": "target"},
                     line={"color": "#444"},
                     reversescale=True,
                     sizeref=20,
@@ -104,8 +100,8 @@ class Visualization:
         fig.update_traces(hoverinfo="none", hovertemplate=None, marker_size=20)
 
         fig.update_layout(
-            xaxis=dict(title='chemical similarity'),
-            yaxis=dict(title='chemical similarity'),
+            xaxis=dict(title='target'),
+            yaxis=dict(title='target'),
             plot_bgcolor='rgba(255,255,255,0.1)',
             width=800, height=800
         )
@@ -146,35 +142,67 @@ class Visualization:
                     html.P(f"{form}"),
                     #html.P(f"{pred}"),
                 ],
-                style={'width': '300px', 'white-space': 'normal'})
+                style={'width': '200px', 'white-space': 'normal'})
             ]
 
             return True, bbox, children
         
         app.run_server(debug=True, mode='inline')
 
-    def features_plot(self, x_data, y_data, column):
-        df = x_data.join(y_data, lsuffix="_x", rsuffix="_y")
-        fig, axes = plt.subplots(1,len(df.columns.values)-1, sharey=True, figsize=(15,2))
+    def features_plot(self, x_data, y_data):
 
-        for i, col in enumerate(df.columns.values[:-1]):
-            df.plot(x=[col], y=[column], kind="scatter", ax=axes[i])
+        fig = subplots.make_subplots(rows=1, cols=6, 
+                                     subplot_titles=("Fingerprint 1","Fingerprint 2","Fingerprint 3",
+                                                     "Fingerprint 4","Fingerprint 5","Fingerprint 6"))
+        fig.add_trace(
+            go.Scatter(mode='markers', x=x_data.iloc[:,0], y=y_data, name = 'fingerprint 1'),
+            row=1, col=1
+        )
+        fig.add_trace(
+            go.Scatter(mode='markers', x=x_data.iloc[:,1], y=y_data, name = 'fingerprint 2'),
+            row=1, col=2
+        )
+        fig.add_trace(
+            go.Scatter(mode='markers', x=x_data.iloc[:,2], y=y_data, name = 'fingerprint 3'),
+            row=1, col=3
+        )
+        fig.add_trace(
+            go.Scatter(mode='markers', x=x_data.iloc[:,3], y=y_data, name = 'fingerprint 4'),
+            row=1, col=4
+        )
+        fig.add_trace(
+            go.Scatter(mode='markers', x=x_data.iloc[:,4], y=y_data, name = 'fingerprint 5'),
+            row=1, col=5
+        )
+        fig.add_trace(
+            go.Scatter(mode='markers', x=x_data.iloc[:,5], y=y_data, name = 'fingerprint 6'),
+            row=1, col=6
+        )
+        fig.update_layout(height=400, width=1200, title_text="Target x fingerprint data visualization")
+        fig.show()
 
-        plt.show()
 
     def create_BoxHist(self, df):
-        # creating a figure composed of two matplotlib.Axes objects (ax_box and ax_hist)
-        f, (ax_box, ax_hist) = plt.subplots(2, sharex=True, gridspec_kw={"height_ratios": (.15, .85)})    
+        fig = subplots.make_subplots(rows=1, cols=3, 
+                                     subplot_titles=("Outliers boxplot", "Histogram for target distribution", 
+                                                     "Histogram for log transformed target distribution"))
+        fig.add_trace(
+            go.Box(y=df, name = 'outliers'),
+            row=1, col=1
+        )
 
-        # assigning a graph to each ax
-        sns.boxplot(x=df, ax=ax_box)
-        sns.histplot(data=df, ax=ax_hist, bins=100)
-        ax_hist.set_yscale('log')
+        fig.add_trace(
+            go.Histogram(x=df, y=df, name = 'target'),
+            row=1, col=2
+        )
 
-        # Remove x axis name for the boxplot
-        ax_box.set(xlabel='')
-        plt.show()
+        fig.add_trace(
+            go.Histogram(x=np.log(df), y=np.log(df), name = 'target_log'),
+            row=1, col=3
+        )
 
+        fig.update_layout(height=600, width=1200, title_text="Distribution visualization")
+        fig.show()
         
 
     def create_ComparePlot(self, results):
